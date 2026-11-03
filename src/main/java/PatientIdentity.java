@@ -2,7 +2,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class PatientIdentity {
+public class PatientIdentity implements Comparable<PatientIdentity> {
     private final Name name;
     private final Date dateOfBirth;
 
@@ -35,6 +35,14 @@ public class PatientIdentity {
         if (!name.match(other.name)) return false;
 
         return dateOfBirth.compareTo(other.dateOfBirth) < 0;
+    }
+
+    @Override
+    public int compareTo(PatientIdentity other) {
+        if (other == null) throw new IllegalArgumentException("Other identity cannot be null");
+        if (isLessThan(other)) return -1;
+        if (match(other)) return 0;
+        return 1;
     }
 
     @Override

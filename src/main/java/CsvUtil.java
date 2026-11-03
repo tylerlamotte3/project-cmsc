@@ -1,8 +1,11 @@
 final class CsvUtil {
     private CsvUtil() {}
 
-
-    
+    /**
+     * Parses one CSV line without using Java collection classes.
+     * Quotes may contain commas, and doubled quotes inside quoted fields
+     * are interpreted as a single quote.
+     */
     static String[] parseLine(String line) {
         if (line == null) throw new IllegalArgumentException("CSV line cannot be null");
 

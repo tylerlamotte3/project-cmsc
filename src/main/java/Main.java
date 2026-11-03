@@ -15,7 +15,9 @@ public class Main {
             System.out.println("Patient list saved.");
         }
 
-        
+        // Prescription import can be enabled when a matching patient file
+        // has been loaded:
+        //
         // patients.readPrescriptionsFromFile("prescriptions1000.csv");
     }
 }

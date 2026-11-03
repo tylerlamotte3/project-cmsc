@@ -16,7 +16,11 @@ public class PatientList {
         count = 0;
     }
 
-    
+    /**
+     * Adds a patient while maintaining PatientIdentity order.
+     * Returns false when the fixed 1000-patient array is full or the
+     * patient is null. A duplicate identity is not inserted.
+     */
     public boolean add(Patient patient) {
         if (patient == null || count >= patients.length) {
             return false;
@@ -42,7 +46,9 @@ public class PatientList {
         return binarySearch(identity);
     }
 
-    
+    /**
+     * Saves patients in iterator order.
+     */
     public boolean saveToFile(String filename) {
         try (BufferedWriter writer = Files.newBufferedWriter(
                 Path.of(filename), StandardCharsets.UTF_8)) {
@@ -60,7 +66,12 @@ public class PatientList {
         }
     }
 
-
+    /**
+     * Imports valid patient records. Input order is arbitrary.
+     * Invalid CSV records are skipped while valid records continue to load.
+     * The imported records are sorted with mergesort before being merged
+     * into the existing ordered PatientList.
+     */
     public boolean importFromFile(String filename) {
         Patient[] imported = new Patient[MAX_PATIENTS];
         int importedCount = 0;
@@ -79,7 +90,7 @@ public class PatientList {
                         imported[importedCount++] = patient;
                     }
                 } catch (RuntimeException ignored) {
-                    // skip
+                    // Per the project requirements, skip only the bad row.
                 }
             }
 
@@ -92,7 +103,11 @@ public class PatientList {
         }
     }
 
-    
+    /**
+     * Reads prescriptions and adds them to the matching patients.
+     * Prescription rows may be in arbitrary order and this method may be
+     * called repeatedly; each patient's list remains newest-first.
+     */
     public void readPrescriptionsFromFile(String filename) throws IOException {
         try (BufferedReader reader = Files.newBufferedReader(
                 Path.of(filename), StandardCharsets.UTF_8)) {
@@ -130,6 +145,8 @@ public class PatientList {
         String prescriber;
 
         if (fields.length == 6) {
+            // The patient_name field is one CSV field, normally quoted as
+            // "Last, First".
             patientName = fields[0];
             dobText = fields[1];
             medicine = fields[2];
@@ -137,6 +154,7 @@ public class PatientList {
             dosage = fields[4];
             prescriber = fields[5];
         } else if (fields.length == 7) {
+            // The supplied project data also uses unquoted Last,First.
             patientName = fields[0] + ", " + fields[1];
             dobText = fields[2];
             medicine = fields[3];
@@ -187,7 +205,9 @@ public class PatientList {
         return new Name(parts[1], parts[0]);
     }
 
-
+    /**
+     * Finds the insertion position using only PatientIdentity comparisons.
+     */
     private int insertionPosition(PatientIdentity identity) {
         int position = 0;
 
@@ -207,7 +227,9 @@ public class PatientList {
         count++;
     }
 
-
+    /**
+     * Simple-loop binary search required by Project 2.
+     */
     private Patient binarySearch(PatientIdentity identity) {
         int lower = 0;
         int upper = count - 1;
@@ -230,7 +252,9 @@ public class PatientList {
         return null;
     }
 
-
+    /**
+     * Mergesort required for Project 3 import.
+     */
     private static void mergeSort(Patient[] array, int from, int to) {
         if (to - from <= 1) return;
 
@@ -275,7 +299,10 @@ public class PatientList {
         }
     }
 
-    
+    /**
+     * Merges the sorted imported array with the already-sorted patient array.
+     * Duplicate identities from the import are ignored.
+     */
     private void mergeImported(Patient[] imported, int importedCount) {
         Patient[] merged = new Patient[MAX_PATIENTS];
         int existingIndex = 0;

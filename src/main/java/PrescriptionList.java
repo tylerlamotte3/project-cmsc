@@ -31,7 +31,10 @@ public class PrescriptionList {
         before.next = newRecord;
     }
 
-    
+    /**
+     * True when first prescription should occur earlier in the list.
+     * The course requires most-recent prescriptions first.
+     */
     private static boolean comesBefore(Prescription first, Prescription second) {
         Date firstDate = first.getDateOfIssue();
         Date secondDate = second.getDateOfIssue();

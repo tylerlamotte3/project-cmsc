@@ -3,7 +3,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class Patient {
+public class Patient implements IdentifiedObject<PatientIdentity> {
     private final PatientIdentity patientIdentity;
     private final PrescriptionList prescriptions;
 
@@ -15,6 +15,7 @@ public class Patient {
         prescriptions = new PrescriptionList();
     }
 
+    @Override
     public PatientIdentity getIdentity() {
         return patientIdentity;
     }
@@ -23,10 +24,15 @@ public class Patient {
         return prescriptions;
     }
 
+    // Compatibility alias; the course requirement is a public accessor.
     public PrescriptionList getPrescriptionList() {
         return prescriptions;
     }
 
+    /**
+     * CSV order required by the course notes:
+     * last_name,first_name,date_of_birth
+     */
     public String toCSV() {
         Name name = patientIdentity.getName();
         return CsvUtil.quote(name.getLastName()) + ","
@@ -50,8 +56,12 @@ public class Patient {
         if (value == null) throw new IllegalArgumentException("Date cannot be null");
         String text = value.trim();
 
-        
+        // The course examples use MM-dd-yyyy. The supplied project data also
+        // contains ISO yyyy-MM-dd dates, so imports accept both representations.
         Date date = parseDateWithFormat(text, "MM-dd-yyyy");
+        if (date != null) return date;
+
+        date = parseDateWithFormat(text, "yyyy-MM-dd");
         if (date != null) return date;
 
         throw new IllegalArgumentException("Invalid date: " + value);
